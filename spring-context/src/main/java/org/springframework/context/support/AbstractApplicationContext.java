@@ -541,8 +541,10 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		return this.applicationListeners;
 	}
 
+
 	@Override
 	public void refresh() throws BeansException, IllegalStateException {
+		//典型的模板方法模式，很多方法交由了类实现，以满足不同需求，整体流程由父类定义
 		synchronized (this.startupShutdownMonitor) {
 			StartupStep contextRefresh = this.applicationStartup.start("spring.context.refresh");
 
@@ -557,13 +559,16 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 
 			try {
 				// Allows post-processing of the bean factory in context subclasses.
+				//对BeanFactory进行后置处理，由子类实现
 				postProcessBeanFactory(beanFactory);
 
 				StartupStep beanPostProcess = this.applicationStartup.start("spring.context.beans.post-process");
 				// Invoke factory processors registered as beans in the context.
+				//调用工厂后置处理器，此举可以修改bd
 				invokeBeanFactoryPostProcessors(beanFactory);
 
 				// Register bean processors that intercept bean creation.
+				//注册bean后置处理器，可以在bean初始化前后对其进行操作
 				registerBeanPostProcessors(beanFactory);
 				beanPostProcess.end();
 
@@ -580,6 +585,8 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 				registerListeners();
 
 				// Instantiate all remaining (non-lazy-init) singletons.
+				//初始化beanFactory,并实例化作用域为singleton并且非懒加载的类
+				//具体实例化工作交给子类实现
 				finishBeanFactoryInitialization(beanFactory);
 
 				// Last step: publish corresponding event.
