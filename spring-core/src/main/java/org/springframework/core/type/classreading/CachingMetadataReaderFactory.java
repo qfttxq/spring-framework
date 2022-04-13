@@ -116,16 +116,19 @@ public class CachingMetadataReaderFactory extends SimpleMetadataReaderFactory {
 
 	@Override
 	public MetadataReader getMetadataReader(Resource resource) throws IOException {
-		if (this.metadataReaderCache instanceof ConcurrentMap) {
+		if (this.metadataReaderCache instanceof ConcurrentMap) {//线程安全的
 			// No synchronization necessary...
+			//先从缓存里面取对应的元数据阅读器
 			MetadataReader metadataReader = this.metadataReaderCache.get(resource);
 			if (metadataReader == null) {
+				//缓存没有，调用父类方法获取
 				metadataReader = super.getMetadataReader(resource);
+				//将取到的元数据阅读器，缓存起来
 				this.metadataReaderCache.put(resource, metadataReader);
 			}
 			return metadataReader;
 		}
-		else if (this.metadataReaderCache != null) {
+		else if (this.metadataReaderCache != null) {//线程不安全的，加锁
 			synchronized (this.metadataReaderCache) {
 				MetadataReader metadataReader = this.metadataReaderCache.get(resource);
 				if (metadataReader == null) {
@@ -136,6 +139,7 @@ public class CachingMetadataReaderFactory extends SimpleMetadataReaderFactory {
 			}
 		}
 		else {
+			//metadataReaderCache非线程安全的又为空即没有缓存，则直接交给交类处理
 			return super.getMetadataReader(resource);
 		}
 	}
