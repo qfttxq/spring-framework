@@ -355,6 +355,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 							throw ex;
 						}
 					});
+					//从bean实例中获取bean对象，之所有有这一步，是因为从bean定义中获取的bean实例，并不一定是最终的
+					//需要的bean对象，可能是factoryBean
 					beanInstance = getObjectForBeanInstance(sharedInstance, name, beanName, mbd);
 				}
 				//原型作用域

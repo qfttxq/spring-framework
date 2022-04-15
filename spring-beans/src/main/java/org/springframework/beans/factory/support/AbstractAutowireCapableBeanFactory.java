@@ -622,7 +622,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		try {
 			//属性填充
 			populateBean(beanName, mbd, instanceWrapper);
-			//初始化bean
+			//初始化bean，调用各种AWARE接口，和后置处理器，初始化方法，动态代理也是在这个过程中进行的
 			exposedObject = initializeBean(beanName, exposedObject, mbd);
 		}
 		catch (Throwable ex) {
@@ -1819,6 +1819,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 					beanName, "Invocation of init method failed", ex);
 		}
 		if (mbd == null || !mbd.isSynthetic()) {
+			//在这里对原始bean对象，进行了动态代理，生成了代理对象
 			wrappedBean = applyBeanPostProcessorsAfterInitialization(wrappedBean, beanName);
 		}
 

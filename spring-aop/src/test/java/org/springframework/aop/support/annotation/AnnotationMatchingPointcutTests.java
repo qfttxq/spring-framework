@@ -37,7 +37,6 @@ class AnnotationMatchingPointcutTests {
 		Pointcut pointcut1 = new AnnotationMatchingPointcut(Qualifier.class, true);
 		Pointcut pointcut2 = new AnnotationMatchingPointcut(Qualifier.class, true);
 		Pointcut pointcut3 = new AnnotationMatchingPointcut(Qualifier.class);
-
 		assertThat(pointcut1.getClassFilter().getClass()).isEqualTo(AnnotationClassFilter.class);
 		assertThat(pointcut2.getClassFilter().getClass()).isEqualTo(AnnotationClassFilter.class);
 		assertThat(pointcut3.getClassFilter().getClass()).isEqualTo(AnnotationClassFilter.class);
