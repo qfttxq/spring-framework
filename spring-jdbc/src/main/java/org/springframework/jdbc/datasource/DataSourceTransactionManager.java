@@ -260,6 +260,7 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 		Connection con = null;
 
 		try {
+			//如果事务对象没有数据库连接或者连接已经与事务同步，则获得新连接
 			if (!txObject.hasConnectionHolder() ||
 					txObject.getConnectionHolder().isSynchronizedWithTransaction()) {
 				Connection newCon = obtainDataSource().getConnection();
@@ -268,7 +269,7 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 				}
 				txObject.setConnectionHolder(new ConnectionHolder(newCon), true);
 			}
-
+			//设置连接与事务同步
 			txObject.getConnectionHolder().setSynchronizedWithTransaction(true);
 			con = txObject.getConnectionHolder().getConnection();
 
@@ -279,6 +280,7 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 			// Switch to manual commit if necessary. This is very expensive in some JDBC drivers,
 			// so we don't want to do it unnecessarily (for example if we've explicitly
 			// configured the connection pool to set it already).
+			//关闭自动提交
 			if (con.getAutoCommit()) {
 				txObject.setMustRestoreAutoCommit(true);
 				if (logger.isDebugEnabled()) {
@@ -296,6 +298,7 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 			}
 
 			// Bind the connection holder to the thread.
+			//将数据源和连接绑定到当前线程变量
 			if (txObject.isNewConnectionHolder()) {
 				TransactionSynchronizationManager.bindResource(obtainDataSource(), txObject.getConnectionHolder());
 			}
@@ -313,7 +316,9 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 	@Override
 	protected Object doSuspend(Object transaction) {
 		DataSourceTransactionObject txObject = (DataSourceTransactionObject) transaction;
+		//移除事务对象的连接
 		txObject.setConnectionHolder(null);
+		//从当前线程中，移除连接
 		return TransactionSynchronizationManager.unbindResource(obtainDataSource());
 	}
 
@@ -330,6 +335,7 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 			logger.debug("Committing JDBC transaction on Connection [" + con + "]");
 		}
 		try {
+			//提交事务
 			con.commit();
 		}
 		catch (SQLException ex) {
@@ -345,6 +351,7 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 			logger.debug("Rolling back JDBC transaction on Connection [" + con + "]");
 		}
 		try {
+			//回滚事务
 			con.rollback();
 		}
 		catch (SQLException ex) {
@@ -416,6 +423,7 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 			try (Statement stmt = con.createStatement()) {
 				stmt.executeUpdate("SET TRANSACTION READ ONLY");
 			}
+
 		}
 	}
 
