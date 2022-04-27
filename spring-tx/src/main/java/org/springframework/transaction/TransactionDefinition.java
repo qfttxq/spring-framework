@@ -41,6 +41,10 @@ import org.springframework.lang.Nullable;
  * @see org.springframework.transaction.support.DefaultTransactionDefinition
  * @see org.springframework.transaction.interceptor.TransactionAttribute
  */
+
+/**
+ * 此接口定久的了事务的基本属性，包括事务传播行为，隔离级别，超时时间，是否只读
+ */
 public interface TransactionDefinition {
 
 	/**

@@ -172,6 +172,7 @@ public abstract class JdbcTransactionObjectSupport implements SavepointManager, 
 	public void rollbackToSavepoint(Object savepoint) throws TransactionException {
 		ConnectionHolder conHolder = getConnectionHolderForSavepoint();
 		try {
+			//通过数据库连接，回滚事务到给定保存点
 			conHolder.getConnection().rollback((Savepoint) savepoint);
 			conHolder.resetRollbackOnly();
 		}
@@ -188,6 +189,7 @@ public abstract class JdbcTransactionObjectSupport implements SavepointManager, 
 	public void releaseSavepoint(Object savepoint) throws TransactionException {
 		ConnectionHolder conHolder = getConnectionHolderForSavepoint();
 		try {
+			//通过连接释放给定保存点
 			conHolder.getConnection().releaseSavepoint((Savepoint) savepoint);
 		}
 		catch (Throwable ex) {
@@ -196,6 +198,7 @@ public abstract class JdbcTransactionObjectSupport implements SavepointManager, 
 	}
 
 	protected ConnectionHolder getConnectionHolderForSavepoint() throws TransactionException {
+		//前置条件判断
 		if (!isSavepointAllowed()) {
 			throw new NestedTransactionNotSupportedException(
 					"Transaction manager does not allow nested transactions");
@@ -204,6 +207,7 @@ public abstract class JdbcTransactionObjectSupport implements SavepointManager, 
 			throw new TransactionUsageException(
 					"Cannot create nested transaction when not exposing a JDBC transaction");
 		}
+		//返回数据库连接持有者
 		return getConnectionHolder();
 	}
 

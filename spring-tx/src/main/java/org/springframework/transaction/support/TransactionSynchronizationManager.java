@@ -165,19 +165,23 @@ public abstract class TransactionSynchronizationManager {
 	 * @see ResourceTransactionManager#getResourceFactory()
 	 */
 	public static void bindResource(Object key, Object value) throws IllegalStateException {
+		//如果是代理对象，取得被代理的目标对象
 		Object actualKey = TransactionSynchronizationUtils.unwrapResourceIfNecessary(key);
 		Assert.notNull(value, "Value must not be null");
+		//获取线程变量的值
 		Map<Object, Object> map = resources.get();
 		// set ThreadLocal Map if none found
 		if (map == null) {
 			map = new HashMap<>();
 			resources.set(map);
 		}
+		//存入线程变量，对于datasource事务管理器来说，key为datasource对象，value为数据库连接对象
 		Object oldValue = map.put(actualKey, value);
 		// Transparently suppress a ResourceHolder that was marked as void...
 		if (oldValue instanceof ResourceHolder && ((ResourceHolder) oldValue).isVoid()) {
 			oldValue = null;
 		}
+		//如果对应的key已经存在，抛出异常
 		if (oldValue != null) {
 			throw new IllegalStateException(
 					"Already value [" + oldValue + "] for key [" + actualKey + "] bound to thread");
