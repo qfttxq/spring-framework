@@ -209,7 +209,7 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
 
 		final HttpHeaders headers = outputMessage.getHeaders();
 		addDefaultHeaders(headers, t, contentType);
-
+		//区分二进制流和普通http消息输出
 		if (outputMessage instanceof StreamingHttpOutputMessage) {
 			StreamingHttpOutputMessage streamingOutputMessage = (StreamingHttpOutputMessage) outputMessage;
 			streamingOutputMessage.setBody(outputStream -> writeInternal(t, new HttpOutputMessage() {

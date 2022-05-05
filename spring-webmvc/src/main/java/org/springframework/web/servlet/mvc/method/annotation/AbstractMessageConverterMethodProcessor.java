@@ -169,9 +169,11 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
 			throws IOException, HttpMediaTypeNotAcceptableException, HttpMessageNotWritableException {
 
 		Object body;
+		//值类型
 		Class<?> valueType;
+		//目标类型
 		Type targetType;
-
+		//响应的值为字符串
 		if (value instanceof CharSequence) {
 			body = value.toString();
 			valueType = String.class;
@@ -182,7 +184,7 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
 			valueType = getReturnValueType(body, returnType);
 			targetType = GenericTypeResolver.resolveType(getGenericType(returnType), returnType.getContainingClass());
 		}
-
+		//是否非输入流的资源类型
 		if (isResourceType(value, returnType)) {
 			outputMessage.getHeaders().set(HttpHeaders.ACCEPT_RANGES, "bytes");
 			if (value != null && inputMessage.getHeaders().getFirst(HttpHeaders.RANGE) != null &&
@@ -272,12 +274,16 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
 
 		if (selectedMediaType != null) {
 			selectedMediaType = selectedMediaType.removeQualityValue();
+			//遍历所有的消息转换器，直到找到可用的
 			for (HttpMessageConverter<?> converter : this.messageConverters) {
+				//优先使用GenericHttpMessageConverter
 				GenericHttpMessageConverter genericConverter = (converter instanceof GenericHttpMessageConverter ?
 						(GenericHttpMessageConverter<?>) converter : null);
+				//判断消息转换器是否可写
 				if (genericConverter != null ?
 						((GenericHttpMessageConverter) converter).canWrite(targetType, valueType, selectedMediaType) :
 						converter.canWrite(valueType, selectedMediaType)) {
+					//body写之前进行处理
 					body = getAdvice().beforeBodyWrite(body, returnType, selectedMediaType,
 							(Class<? extends HttpMessageConverter<?>>) converter.getClass(),
 							inputMessage, outputMessage);
@@ -286,6 +292,7 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
 						LogFormatUtils.traceDebug(logger, traceOn ->
 								"Writing [" + LogFormatUtils.formatValue(theBody, !traceOn) + "]");
 						addContentDispositionHeader(inputMessage, outputMessage);
+						//通过消息转换器输出body
 						if (genericConverter != null) {
 							genericConverter.write(body, targetType, selectedMediaType, outputMessage);
 						}
@@ -419,6 +426,7 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
 
 		try {
 			int status = response.getServletResponse().getStatus();
+			//1xx,3xx直接返回
 			if (status < 200 || (status > 299 && status < 400)) {
 				return;
 			}
@@ -445,7 +453,7 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
 
 		pathParams = UrlPathHelper.defaultInstance.decodeRequestString(servletRequest, pathParams);
 		String extInPathParams = StringUtils.getFilenameExtension(pathParams);
-
+		//如果不是安全的扩展名，则重命名为f.txt
 		if (!safeExtension(servletRequest, ext) || !safeExtension(servletRequest, extInPathParams)) {
 			headers.add(HttpHeaders.CONTENT_DISPOSITION, "inline;filename=f.txt");
 		}

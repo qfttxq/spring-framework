@@ -149,6 +149,7 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
 		MediaType contentType;
 		boolean noContentType = false;
 		try {
+			//内容类型
 			contentType = inputMessage.getHeaders().getContentType();
 		}
 		catch (InvalidMediaTypeException ex) {
@@ -156,16 +157,19 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
 		}
 		if (contentType == null) {
 			noContentType = true;
+			//没有类型的话，设置为二进制流类型
 			contentType = MediaType.APPLICATION_OCTET_STREAM;
 		}
-
+		//返回参数的类型，自身或其子类
 		Class<?> contextClass = parameter.getContainingClass();
+		//目标类型从接口转换为Class类型
 		Class<T> targetClass = (targetType instanceof Class ? (Class<T>) targetType : null);
 		if (targetClass == null) {
+			//从参数中解析目标类型
 			ResolvableType resolvableType = ResolvableType.forMethodParameter(parameter);
 			targetClass = (Class<T>) resolvableType.resolve();
 		}
-
+		//从请求中获取请求方法
 		HttpMethod httpMethod = (inputMessage instanceof HttpRequest ? ((HttpRequest) inputMessage).getMethod() : null);
 		Object body = NO_VALUE;
 
@@ -174,19 +178,25 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
 			message = new EmptyBodyCheckingHttpInputMessage(inputMessage);
 
 			for (HttpMessageConverter<?> converter : this.messageConverters) {
+				//消息转换器类型
 				Class<HttpMessageConverter<?>> converterType = (Class<HttpMessageConverter<?>>) converter.getClass();
+				//通用转换器，优先使用通用转换器
 				GenericHttpMessageConverter<?> genericConverter =
 						(converter instanceof GenericHttpMessageConverter ? (GenericHttpMessageConverter<?>) converter : null);
 				if (genericConverter != null ? genericConverter.canRead(targetType, contextClass, contentType) :
 						(targetClass != null && converter.canRead(targetClass, contentType))) {
 					if (message.hasBody()) {
+						//消息读取前的处理
 						HttpInputMessage msgToUse =
 								getAdvice().beforeBodyRead(message, parameter, targetType, converterType);
+						//优先通过通用转换器读取消息内容
 						body = (genericConverter != null ? genericConverter.read(targetType, contextClass, msgToUse) :
 								((HttpMessageConverter<T>) converter).read(targetClass, msgToUse));
+						//消息读取后的处理
 						body = getAdvice().afterBodyRead(body, msgToUse, parameter, targetType, converterType);
 					}
 					else {
+						//处理没有请求体的情况
 						body = getAdvice().handleEmptyBody(null, message, parameter, targetType, converterType);
 					}
 					break;

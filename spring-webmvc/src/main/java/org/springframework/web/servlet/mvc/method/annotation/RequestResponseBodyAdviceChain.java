@@ -135,7 +135,7 @@ class RequestResponseBodyAdviceChain implements RequestBodyAdvice, ResponseBodyA
 	private <T> Object processBody(@Nullable Object body, MethodParameter returnType, MediaType contentType,
 			Class<? extends HttpMessageConverter<?>> converterType,
 			ServerHttpRequest request, ServerHttpResponse response) {
-
+		//根据返回类型找到匹配的advice，循环调用beforeBodyWrite方法
 		for (ResponseBodyAdvice<?> advice : getMatchingAdvice(returnType, ResponseBodyAdvice.class)) {
 			if (advice.supports(returnType, converterType)) {
 				body = ((ResponseBodyAdvice<T>) advice).beforeBodyWrite((T) body, returnType,
