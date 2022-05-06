@@ -154,6 +154,7 @@ public final class GenericTypeResolver {
 	 */
 	public static Type resolveType(Type genericType, @Nullable Class<?> contextClass) {
 		if (contextClass != null) {
+			//泛型为类型变量
 			if (genericType instanceof TypeVariable) {
 				ResolvableType resolvedTypeVariable = resolveVariable(
 						(TypeVariable<?>) genericType, ResolvableType.forClass(contextClass));
@@ -164,6 +165,7 @@ public final class GenericTypeResolver {
 					}
 				}
 			}
+			//泛型为参数化类型
 			else if (genericType instanceof ParameterizedType) {
 				ResolvableType resolvedType = ResolvableType.forType(genericType);
 				if (resolvedType.hasUnresolvableGenerics()) {
@@ -199,6 +201,7 @@ public final class GenericTypeResolver {
 
 	private static ResolvableType resolveVariable(TypeVariable<?> typeVariable, ResolvableType contextType) {
 		ResolvableType resolvedType;
+		//如果上下文类中有泛型
 		if (contextType.hasGenerics()) {
 			resolvedType = ResolvableType.forType(typeVariable, contextType);
 			if (resolvedType.resolve() != null) {

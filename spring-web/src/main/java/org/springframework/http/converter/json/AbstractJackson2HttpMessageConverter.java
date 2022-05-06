@@ -352,9 +352,11 @@ public abstract class AbstractJackson2HttpMessageConverter extends AbstractGener
 	}
 
 	private Object readJavaType(JavaType javaType, HttpInputMessage inputMessage) throws IOException {
+		//从消息中获取contentType
 		MediaType contentType = inputMessage.getHeaders().getContentType();
+		//读取字符集，默认utf-8
 		Charset charset = getCharset(contentType);
-
+		//对象映射，选择合适的映射器
 		ObjectMapper objectMapper = selectObjectMapper(javaType.getRawClass(), contentType);
 		Assert.state(objectMapper != null, "No ObjectMapper for " + javaType);
 
