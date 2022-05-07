@@ -56,24 +56,31 @@ public final class MethodIntrospector {
 	 * or an empty map in case of no match
 	 */
 	public static <T> Map<Method, T> selectMethods(Class<?> targetType, final MetadataLookup<T> metadataLookup) {
+		//方法和元数据映射
 		final Map<Method, T> methodMap = new LinkedHashMap<>();
 		Set<Class<?>> handlerTypes = new LinkedHashSet<>();
 		Class<?> specificHandlerType = null;
-
+		//目标类本身不是Proxy派生类
 		if (!Proxy.isProxyClass(targetType)) {
+			//获取用户原始类型
 			specificHandlerType = ClassUtils.getUserClass(targetType);
 			handlerTypes.add(specificHandlerType);
 		}
+		//获取目标类的接口
 		handlerTypes.addAll(ClassUtils.getAllInterfacesForClassAsSet(targetType));
 
 		for (Class<?> currentHandlerType : handlerTypes) {
+			//目标类优先使用用户原始类，没有则用接口
 			final Class<?> targetClass = (specificHandlerType != null ? specificHandlerType : currentHandlerType);
-
+			//在给定class中，执行方法回调函数的逻辑
 			ReflectionUtils.doWithMethods(currentHandlerType, method -> {
+				//从类及接口中找到和具体方法
 				Method specificMethod = ClassUtils.getMostSpecificMethod(method, targetClass);
+				//用入参的回调方法，从方法中获取想要的元数据
 				T result = metadataLookup.inspect(specificMethod);
 				if (result != null) {
 					Method bridgedMethod = BridgeMethodResolver.findBridgedMethod(specificMethod);
+					//如果不是桥接方法，结果有效
 					if (bridgedMethod == specificMethod || metadataLookup.inspect(bridgedMethod) == null) {
 						methodMap.put(specificMethod, result);
 					}

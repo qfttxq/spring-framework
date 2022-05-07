@@ -67,6 +67,10 @@ import java.util.function.Predicate;
  * ContentNegotiationManagerFactoryBean}). For further context, please read issue
  * <a href="https://github.com/spring-projects/spring-framework/issues/24179">#24719</a>.
  *
+ * IOC容器在创建RequestMappingHandlerMapping时，当调用初始化方法时,
+ * 会去为所有controller建立HandlerMethod到请求路径的映射关系，
+ * 具体实现在它的祖先类AbstractHandlerMethodMapping中实现。
+ *
  * @author Arjen Poutsma
  * @author Rossen Stoyanchev
  * @author Sam Brannen
@@ -272,6 +276,7 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 	 */
 	@Override
 	protected boolean isHandler(Class<?> beanType) {
+		//如果此类有@Controller或者@RequestMapping注解，即为Handler
 		return (AnnotatedElementUtils.hasAnnotation(beanType, Controller.class) ||
 				AnnotatedElementUtils.hasAnnotation(beanType, RequestMapping.class));
 	}
@@ -291,8 +296,10 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 		//根据方法上面的@RequestMapping注解信息创建RequestMappingInfo
 		RequestMappingInfo info = createRequestMappingInfo(method);
 		if (info != null) {
+			//根据类上面的@RequestMapping注解信息创建RequestMappingInfo
 			RequestMappingInfo typeInfo = createRequestMappingInfo(handlerType);
 			if (typeInfo != null) {
+				//组合类上面的请求映射和方法上面的请求映射信息
 				info = typeInfo.combine(info);
 			}
 			String prefix = getPathPrefix(handlerType);

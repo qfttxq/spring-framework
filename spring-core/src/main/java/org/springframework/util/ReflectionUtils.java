@@ -354,16 +354,20 @@ public abstract class ReflectionUtils {
 	 * @throws IllegalStateException if introspection fails
 	 */
 	public static void doWithMethods(Class<?> clazz, MethodCallback mc, @Nullable MethodFilter mf) {
+		//退出条件：直到Object这一层
 		if (mf == USER_DECLARED_METHODS && clazz == Object.class) {
 			// nothing to introspect
 			return;
 		}
+		//得到给定类所有声明方法
 		Method[] methods = getDeclaredMethods(clazz, false);
 		for (Method method : methods) {
+			//方法不匹配被过滤掉了
 			if (mf != null && !mf.matches(method)) {
 				continue;
 			}
 			try {
+				//执行方法回调
 				mc.doWith(method);
 			}
 			catch (IllegalAccessException ex) {
@@ -371,6 +375,7 @@ public abstract class ReflectionUtils {
 			}
 		}
 		// Keep backing up the inheritance hierarchy.
+		//迭代调用，遍历父类及接口
 		if (clazz.getSuperclass() != null && (mf != USER_DECLARED_METHODS || clazz.getSuperclass() != Object.class)) {
 			doWithMethods(clazz.getSuperclass(), mc, mf);
 		}

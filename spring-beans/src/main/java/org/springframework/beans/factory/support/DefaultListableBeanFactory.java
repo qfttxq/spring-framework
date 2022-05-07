@@ -1599,6 +1599,8 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	/**
 	 * Add an entry to the candidate map: a bean instance if available or just the resolved
 	 * type, preventing early bean initialization ahead of primary candidate selection.
+	 * 向候选者map中添加一个条目：一个 bean 实例（如果可用）或只是解析的类型，防止在主要候选选择之前进行早期 bean 初始化。
+	 * 这里的bean对象放在其他一般bean创建后再创建
 	 */
 	private void addCandidateEntry(Map<String, Object> candidates, String candidateName,
 			DependencyDescriptor descriptor, Class<?> requiredType) {

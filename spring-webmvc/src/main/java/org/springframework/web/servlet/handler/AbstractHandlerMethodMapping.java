@@ -210,6 +210,8 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	 */
 	@Override
 	public void afterPropertiesSet() {
+		//初始化controller中的方法为HandlerMethod对象
+		//并将其与请求路径相映射
 		initHandlerMethods();
 	}
 
@@ -222,6 +224,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	protected void initHandlerMethods() {
 		for (String beanName : getCandidateBeanNames()) {
 			if (!beanName.startsWith(SCOPED_TARGET_NAME_PREFIX)) {
+				//处理bean，如果是Handler（是controller)类型
 				processCandidateBean(beanName);
 			}
 		}
@@ -262,6 +265,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 				logger.trace("Could not resolve type for bean '" + beanName + "'", ex);
 			}
 		}
+		//如果bean是handler(controller）,检测到controller的方法，并建立请求映射
 		if (beanType != null && isHandler(beanType)) {
 			detectHandlerMethods(beanName);
 		}
@@ -277,10 +281,15 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 				obtainApplicationContext().getType((String) handler) : handler.getClass());
 
 		if (handlerType != null) {
+			//返回原始用户类型，主要针对cglib生成的代理类，如果不是代理类直接返回入参
 			Class<?> userType = ClassUtils.getUserClass(handlerType);
+			//获取给定class中的方法元数据，此处元数据是方法及其请求映射信息，可看RequestMappingInfo
 			Map<Method, T> methods = MethodIntrospector.selectMethods(userType,
 					(MethodIntrospector.MetadataLookup<T>) method -> {
 						try {
+							//从给定class中的给定方法中获取controller中的方法的请求uri映射
+							//通过@RequestMapping注解
+							//此方法由了类实现，可看RequestMappingHandlerMapping类
 							return getMappingForMethod(method, userType);
 						}
 						catch (Throwable ex) {
@@ -295,6 +304,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 				mappingsLogger.debug(formatMappings(userType, methods));
 			}
 			methods.forEach((method, mapping) -> {
+				//检查方法是否可调用，如果不可调用抛出异常
 				Method invocableMethod = AopUtils.selectInvocableMethod(method, userType);
 				registerHandlerMethod(handler, invocableMethod, mapping);
 			});
@@ -629,9 +639,12 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 		}
 
 		public void register(T mapping, Object handler, Method method) {
+			//加写锁，此为排它锁
 			this.readWriteLock.writeLock().lock();
 			try {
+				//创建HandlerMethod对象
 				HandlerMethod handlerMethod = createHandlerMethod(handler, method);
+				//验证方法映射
 				validateMethodMapping(handlerMethod, mapping);
 
 				Set<String> directPaths = AbstractHandlerMethodMapping.this.getDirectPaths(mapping);
