@@ -66,6 +66,9 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
 
 	private static final Method CALLABLE_METHOD = ClassUtils.getMethod(Callable.class, "call");
 
+	/**
+	 * 返回值处理程序
+	 */
 	@Nullable
 	private HandlerMethodReturnValueHandlerComposite returnValueHandlers;
 
@@ -113,8 +116,9 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
 	 */
 	public void invokeAndHandle(ServletWebRequest webRequest, ModelAndViewContainer mavContainer,
 			Object... providedArgs) throws Exception {
-
+		//调用处理程序方法，处理请求
 		Object returnValue = invokeForRequest(webRequest, mavContainer, providedArgs);
+		//设置响应状态
 		setResponseStatus(webRequest);
 
 		if (returnValue == null) {
