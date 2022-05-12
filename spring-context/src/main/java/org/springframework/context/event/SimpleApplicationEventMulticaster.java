@@ -41,7 +41,7 @@ import org.springframework.util.ErrorHandler;
  * This allows the danger of a rogue listener blocking the entire application,
  * but adds minimal overhead. Specify an alternative task executor to have
  * listeners executed in different threads, for example from a thread pool.
- *
+ *事件，事件监听器，事件广播器，事件发布者 构成事件机制
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @author Stephane Nicoll
@@ -173,6 +173,7 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	private void doInvokeListener(ApplicationListener listener, ApplicationEvent event) {
 		try {
+			//执行事件监听器
 			listener.onApplicationEvent(event);
 		}
 		catch (ClassCastException ex) {
