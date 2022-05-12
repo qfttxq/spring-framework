@@ -48,9 +48,13 @@ public class InvocableHandlerMethod extends HandlerMethod {
 
 	private static final Object[] EMPTY_ARGS = new Object[0];
 
-
+	/**
+	 * 参数解析器组合器
+	 */
 	private HandlerMethodArgumentResolverComposite resolvers = new HandlerMethodArgumentResolverComposite();
-
+	/**
+	 * 参数名称发现器，发现方法和构造函数的参数名称
+	 */
 	private ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
 
 	@Nullable
@@ -177,6 +181,7 @@ public class InvocableHandlerMethod extends HandlerMethod {
 				throw new IllegalStateException(formatArgumentError(parameter, "No suitable resolver"));
 			}
 			try {
+				//解析方法参数
 				args[i] = this.resolvers.resolveArgument(parameter, mavContainer, request, this.dataBinderFactory);
 			}
 			catch (Exception ex) {

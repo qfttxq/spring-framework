@@ -39,7 +39,7 @@ import org.springframework.web.context.request.NativeWebRequest;
 public class HandlerMethodArgumentResolverComposite implements HandlerMethodArgumentResolver {
 
 	private final List<HandlerMethodArgumentResolver> argumentResolvers = new ArrayList<>();
-
+	//参数解析器缓存
 	private final Map<MethodParameter, HandlerMethodArgumentResolver> argumentResolverCache =
 			new ConcurrentHashMap<>(256);
 

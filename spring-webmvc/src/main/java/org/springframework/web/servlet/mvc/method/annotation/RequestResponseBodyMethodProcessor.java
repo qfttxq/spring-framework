@@ -134,7 +134,7 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
 		parameter = parameter.nestedIfOptional();
 		Object arg = readWithMessageConverters(webRequest, parameter, parameter.getNestedGenericParameterType());
 		String name = Conventions.getVariableNameForParameter(parameter);
-
+		//使用数据绑定器，绑定数据
 		if (binderFactory != null) {
 			WebDataBinder binder = binderFactory.createBinder(webRequest, arg, name);
 			if (arg != null) {
@@ -144,6 +144,7 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
 				}
 			}
 			if (mavContainer != null) {
+				//结果放到model中
 				mavContainer.addAttribute(BindingResult.MODEL_KEY_PREFIX + name, binder.getBindingResult());
 			}
 		}
