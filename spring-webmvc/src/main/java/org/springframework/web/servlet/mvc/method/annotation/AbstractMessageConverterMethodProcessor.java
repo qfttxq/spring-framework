@@ -161,8 +161,7 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
 	 * by the {@code Accept} header on the request cannot be met by the message converters
 	 * @throws HttpMessageNotWritableException thrown if a given message cannot
 	 * be written by a converter, or if the content-type chosen by the server
-	 * has no compatible converter.
-	 */
+  	 */
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	protected <T> void writeWithMessageConverters(@Nullable T value, MethodParameter returnType,
 			ServletServerHttpRequest inputMessage, ServletServerHttpResponse outputMessage)
