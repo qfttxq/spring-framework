@@ -585,8 +585,9 @@ public class DispatcherServlet extends FrameworkServlet {
 	 * we default to BeanNameUrlHandlerMapping.
 	 */
 	private void initHandlerMappings(ApplicationContext context) {
-		this.handlerMappings = null;
 
+		this.handlerMappings = null;
+		// 如果开启探测功能，则扫描已注册的 HandlerMapping 的 Bean 们，添加到 handlerMappings 中
 		if (this.detectAllHandlerMappings) {
 			// Find all HandlerMappings in the ApplicationContext, including ancestor contexts.
 			Map<String, HandlerMapping> matchingBeans =
@@ -598,6 +599,7 @@ public class DispatcherServlet extends FrameworkServlet {
 			}
 		}
 		else {
+			//如果关闭探测功能，则获得 HANDLER_MAPPING_BEAN_NAME 对应的 Bean 对象，并设置为 handlerMappings
 			try {
 				HandlerMapping hm = context.getBean(HANDLER_MAPPING_BEAN_NAME, HandlerMapping.class);
 				this.handlerMappings = Collections.singletonList(hm);
@@ -609,6 +611,7 @@ public class DispatcherServlet extends FrameworkServlet {
 
 		// Ensure we have at least one HandlerMapping, by registering
 		// a default HandlerMapping if no other mappings are found.
+		// 如果未获得到，则获得默认配置的 HandlerMapping 类
 		if (this.handlerMappings == null) {
 			this.handlerMappings = getDefaultStrategies(context, HandlerMapping.class);
 			if (logger.isTraceEnabled()) {
@@ -859,6 +862,7 @@ public class DispatcherServlet extends FrameworkServlet {
 	 */
 	@SuppressWarnings("unchecked")
 	protected <T> List<T> getDefaultStrategies(ApplicationContext context, Class<T> strategyInterface) {
+		//读取DispatcherServlet.properties文件
 		if (defaultStrategies == null) {
 			try {
 				// Load default strategy implementations from properties file.
@@ -871,9 +875,11 @@ public class DispatcherServlet extends FrameworkServlet {
 				throw new IllegalStateException("Could not load '" + DEFAULT_STRATEGIES_PATH + "': " + ex.getMessage());
 			}
 		}
-
+		//获得 strategyInterface 对应的 value 值(类名）
 		String key = strategyInterface.getName();
+		//获取配置文件中的默认配置
 		String value = defaultStrategies.getProperty(key);
+		//实例化默认配置中类
 		if (value != null) {
 			String[] classNames = StringUtils.commaDelimitedListToStringArray(value);
 			List<T> strategies = new ArrayList<>(classNames.length);
@@ -1257,7 +1263,9 @@ public class DispatcherServlet extends FrameworkServlet {
 	@Nullable
 	protected HandlerExecutionChain getHandler(HttpServletRequest request) throws Exception {
 		if (this.handlerMappings != null) {
+			// 遍历 HandlerMapping 数组
 			for (HandlerMapping mapping : this.handlerMappings) {
+				// 获得请求对应的 HandlerExecutionChain 对象，其中包括匹配的处理器和拦截器
 				HandlerExecutionChain handler = mapping.getHandler(request);
 				if (handler != null) {
 					return handler;

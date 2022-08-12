@@ -50,6 +50,8 @@ import org.springframework.lang.Nullable;
 public interface HandlerAdapter {
 
 	/**
+	 * 是否支持此处理器
+	 * 之所以需要处理器适配器是为支持不同类型的处理器调用,比如说实现Controller接口的，使用@Controller注解的等等
 	 * Given a handler instance, return whether or not this {@code HandlerAdapter}
 	 * can support it. Typical HandlerAdapters will base the decision on the handler
 	 * type. HandlerAdapters will usually only support one handler type each.
@@ -60,9 +62,11 @@ public interface HandlerAdapter {
 	 * @param handler the handler object to check
 	 * @return whether or not this object can use the given handler
 	 */
+
 	boolean supports(Object handler);
 
 	/**
+	 * 执行处理器，返回 ModelAndView 结果
 	 * Use the given handler to handle this request.
 	 * The workflow that is required may vary widely.
 	 * @param request current HTTP request
@@ -78,6 +82,8 @@ public interface HandlerAdapter {
 	ModelAndView handle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception;
 
 	/**
+	 * 返回请求的最新更新时间。
+	 *  如果不支持该操作，则返回 -1 即可
 	 * Same contract as for HttpServlet's {@code getLastModified} method.
 	 * Can simply return -1 if there's no support in the handler class.
 	 * @param request current HTTP request

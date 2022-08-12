@@ -33,20 +33,31 @@ import org.springframework.web.util.pattern.PathPattern;
  * @since 4.3.1
  */
 public class RequestMatchResult {
-
+	/**
+	 * 路径模式
+	 */
 	@Nullable
 	private final PathPattern pathPattern;
-
+	/**
+	 * 路径容器
+	 */
 	@Nullable
 	private final PathContainer lookupPathContainer;
 
 
+	/**
+	 * 模式
+	 */
 	@Nullable
 	private final String pattern;
-
+	/**
+	 * 请求路径
+	 */
 	@Nullable
 	private final String lookupPath;
-
+	/**
+	 * 路径匹配器
+	 */
 	@Nullable
 	private final PathMatcher pathMatcher;
 
