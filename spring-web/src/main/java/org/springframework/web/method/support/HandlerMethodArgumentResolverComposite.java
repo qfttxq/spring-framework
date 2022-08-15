@@ -37,9 +37,13 @@ import org.springframework.web.context.request.NativeWebRequest;
  * @since 3.1
  */
 public class HandlerMethodArgumentResolverComposite implements HandlerMethodArgumentResolver {
-
+	/**
+	 * HandlerMethodArgumentResolver 数组
+	 */
 	private final List<HandlerMethodArgumentResolver> argumentResolvers = new ArrayList<>();
-	//参数解析器缓存
+	/**
+	 * MethodParameter 与 HandlerMethodArgumentResolver 的映射，作为缓存。
+	 */
 	private final Map<MethodParameter, HandlerMethodArgumentResolver> argumentResolverCache =
 			new ConcurrentHashMap<>(256);
 
@@ -128,7 +132,7 @@ public class HandlerMethodArgumentResolverComposite implements HandlerMethodArgu
 	 */
 	@Nullable
 	private HandlerMethodArgumentResolver getArgumentResolver(MethodParameter parameter) {
-		//从缓存中获取参数解析器
+		//优先从缓存中获取参数解析器
 		HandlerMethodArgumentResolver result = this.argumentResolverCache.get(parameter);
 		//缓存没有，从参数解析器列表中获取适用的方法参数解析器
 		if (result == null) {
@@ -136,6 +140,7 @@ public class HandlerMethodArgumentResolverComposite implements HandlerMethodArgu
 				//判断解析器是否支持此方法参数的解析
 				if (resolver.supportsParameter(parameter)) {
 					result = resolver;
+					//将匹配到的结果存入缓存
 					this.argumentResolverCache.put(parameter, result);
 					break;
 				}

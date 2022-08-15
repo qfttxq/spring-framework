@@ -49,7 +49,7 @@ public class InvocableHandlerMethod extends HandlerMethod {
 	private static final Object[] EMPTY_ARGS = new Object[0];
 
 	/**
-	 * 参数解析器组合器
+	 * 处理器方法参数解析器组合器
 	 */
 	private HandlerMethodArgumentResolverComposite resolvers = new HandlerMethodArgumentResolverComposite();
 	/**
@@ -57,6 +57,9 @@ public class InvocableHandlerMethod extends HandlerMethod {
 	 */
 	private ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
 
+	/**
+	 * web数据绑定工厂
+	 */
 	@Nullable
 	private WebDataBinderFactory dataBinderFactory;
 
@@ -163,16 +166,19 @@ public class InvocableHandlerMethod extends HandlerMethod {
 	 */
 	protected Object[] getMethodArgumentValues(NativeWebRequest request, @Nullable ModelAndViewContainer mavContainer,
 			Object... providedArgs) throws Exception {
-
+		// 方法的参数信息的数组
 		MethodParameter[] parameters = getMethodParameters();
 		if (ObjectUtils.isEmpty(parameters)) {
 			return EMPTY_ARGS;
 		}
-
+		// 解析后的参数结果数组
 		Object[] args = new Object[parameters.length];
+		// 遍历，开始解析
 		for (int i = 0; i < parameters.length; i++) {
+			// 获得当前遍历的 MethodParameter 对象，并设置 parameterNameDiscoverer 到其中
 			MethodParameter parameter = parameters[i];
 			parameter.initParameterNameDiscovery(this.parameterNameDiscoverer);
+			// 先从 providedArgs 中获得参数。如果获得到，则进入下一个参数的解析
 			args[i] = findProvidedArgument(parameter, providedArgs);
 			if (args[i] != null) {
 				continue;
@@ -208,6 +214,7 @@ public class InvocableHandlerMethod extends HandlerMethod {
 			if (KotlinDetector.isSuspendingFunction(method)) {
 				return CoroutinesUtils.invokeSuspendingFunction(method, getBean(), args);
 			}
+			//调用处理器方法
 			return method.invoke(getBean(), args);
 		}
 		catch (IllegalArgumentException ex) {
