@@ -192,19 +192,24 @@ public abstract class AbstractNamedValueMethodArgumentResolver implements Handle
 	}
 
 	/**
+	 * 解析嵌入的值和表达式
 	 * Resolve the given annotation-specified value,
 	 * potentially containing placeholders and expressions.
 	 */
 	@Nullable
 	private Object resolveEmbeddedValuesAndExpressions(String value) {
+		// 如果 configurableBeanFactory 或 expressionContext 为空，则不进行解析
 		if (this.configurableBeanFactory == null || this.expressionContext == null) {
 			return value;
 		}
+		// 获得占位符对应的值
 		String placeholdersResolved = this.configurableBeanFactory.resolveEmbeddedValue(value);
+		// 	如果 exprResolver 为空，则不进行解析
 		BeanExpressionResolver exprResolver = this.configurableBeanFactory.getBeanExpressionResolver();
 		if (exprResolver == null) {
 			return value;
 		}
+		// 计算表达式
 		return exprResolver.evaluate(placeholdersResolved, this.expressionContext);
 	}
 

@@ -49,6 +49,9 @@ import org.springframework.web.bind.support.SimpleSessionStatus;
  */
 public class ModelAndViewContainer {
 
+	/**
+	 * 忽略重定向时的默认模型
+	 */
 	private boolean ignoreDefaultModelOnRedirect = false;
 
 	@Nullable
@@ -56,9 +59,15 @@ public class ModelAndViewContainer {
 
 	private final ModelMap defaultModel = new BindingAwareModelMap();
 
+	/**
+	 * 重定向模型
+	 */
 	@Nullable
 	private ModelMap redirectModel;
 
+	/**
+	 * 处理器返回 redirect 视图的标识
+	 */
 	private boolean redirectModelScenario = false;
 
 	@Nullable
@@ -68,8 +77,13 @@ public class ModelAndViewContainer {
 
 	private final Set<String> bindingDisabled = new HashSet<>(4);
 
+	/**
+	 * 用于设置 SessionAttribute 的标识
+	 */
 	private final SessionStatus sessionStatus = new SimpleSessionStatus();
-
+	/**
+	 * 请求是否处理完的标识
+	 */
 	private boolean requestHandled = false;
 
 

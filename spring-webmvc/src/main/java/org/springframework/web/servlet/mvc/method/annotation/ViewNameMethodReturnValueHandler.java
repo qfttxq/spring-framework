@@ -25,6 +25,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 import org.springframework.web.servlet.RequestToViewNameTranslator;
 
 /**
+ * 返回值是视图名称的处理器
  * Handles return values of types {@code void} and {@code String} interpreting them
  * as view name reference. As of 4.2, it also handles general {@code CharSequence}
  * types, e.g. {@code StringBuilder} or Groovy's {@code GString}, as view names.
@@ -43,7 +44,9 @@ import org.springframework.web.servlet.RequestToViewNameTranslator;
  * @since 3.1
  */
 public class ViewNameMethodReturnValueHandler implements HandlerMethodReturnValueHandler {
-
+	/**
+	 * 重定向的表达式的数组
+	 */
 	@Nullable
 	private String[] redirectPatterns;
 
@@ -77,14 +80,17 @@ public class ViewNameMethodReturnValueHandler implements HandlerMethodReturnValu
 	@Override
 	public void handleReturnValue(@Nullable Object returnValue, MethodParameter returnType,
 			ModelAndViewContainer mavContainer, NativeWebRequest webRequest) throws Exception {
-
+		// 如果是 String 类型
 		if (returnValue instanceof CharSequence) {
 			String viewName = returnValue.toString();
+			// 设置视图名到 mavContainer 中
 			mavContainer.setViewName(viewName);
+			// 如果是重定向，则标记到 mavContainer 中
 			if (isRedirectViewName(viewName)) {
 				mavContainer.setRedirectModelScenario(true);
 			}
 		}
+		// 如果是非 String 类型，而且非 void ，则抛出 UnsupportedOperationException 异常
 		else if (returnValue != null) {
 			// should not happen
 			throw new UnsupportedOperationException("Unexpected return type: " +
@@ -101,6 +107,7 @@ public class ViewNameMethodReturnValueHandler implements HandlerMethodReturnValu
 	 * reference; "false" otherwise.
 	 */
 	protected boolean isRedirectViewName(String viewName) {
+		// 符合 redirectPatterns 表达式 或者  以 redirect: 开头
 		return (PatternMatchUtils.simpleMatch(this.redirectPatterns, viewName) || viewName.startsWith("redirect:"));
 	}
 
