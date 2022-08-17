@@ -59,17 +59,29 @@ public class DefaultRequestToViewNameTranslator implements RequestToViewNameTran
 
 	private static final String SLASH = "/";
 
-
+	/**
+	 * 前缀
+	 */
 	private String prefix = "";
-
+	/**
+	 * 后缀
+	 */
 	private String suffix = "";
-
+	/**
+	 * 分隔符
+	 */
 	private String separator = SLASH;
-
+	/**
+	 *是否去掉开头/
+	 */
 	private boolean stripLeadingSlash = true;
-
+	/**
+	 * 是否去掉结尾/
+	 */
 	private boolean stripTrailingSlash = true;
-
+	/**
+	 * 是否去掉扩展名
+	 */
 	private boolean stripExtension = true;
 
 
@@ -175,7 +187,9 @@ public class DefaultRequestToViewNameTranslator implements RequestToViewNameTran
 	 */
 	@Override
 	public String getViewName(HttpServletRequest request) {
+		//路径
 		String path = ServletRequestPathUtils.getCachedPathValue(request);
+		//路径转换后，加上前缀和后缀
 		return (this.prefix + transformPath(path) + this.suffix);
 	}
 
@@ -190,15 +204,19 @@ public class DefaultRequestToViewNameTranslator implements RequestToViewNameTran
 	@Nullable
 	protected String transformPath(String lookupPath) {
 		String path = lookupPath;
+		//去掉开关/
 		if (this.stripLeadingSlash && path.startsWith(SLASH)) {
 			path = path.substring(1);
 		}
+		//去掉结尾/
 		if (this.stripTrailingSlash && path.endsWith(SLASH)) {
 			path = path.substring(0, path.length() - 1);
 		}
+		//去掉扩展名
 		if (this.stripExtension) {
 			path = StringUtils.stripFilenameExtension(path);
 		}
+		//替换分隔符
 		if (!SLASH.equals(this.separator)) {
 			path = StringUtils.replace(path, SLASH, this.separator);
 		}
