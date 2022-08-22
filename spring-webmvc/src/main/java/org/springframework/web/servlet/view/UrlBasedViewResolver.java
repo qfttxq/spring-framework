@@ -610,6 +610,7 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
 	 * @see org.springframework.beans.factory.config.AutowireCapableBeanFactory#initializeBean
 	 */
 	protected View applyLifecycleMethods(String viewName, AbstractUrlBasedView view) {
+		// 情况一，如果 viewName 有对应的 View Bean 对象，则使用它
 		ApplicationContext context = getApplicationContext();
 		if (context != null) {
 			Object initialized = context.getAutowireCapableBeanFactory().initializeBean(view, viewName);
@@ -617,6 +618,7 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
 				return (View) initialized;
 			}
 		}
+		// 情况二，直接返回 view
 		return view;
 	}
 

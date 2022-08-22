@@ -80,8 +80,14 @@ public abstract class AbstractCachingViewResolver extends WebApplicationObjectSu
 	@SuppressWarnings("serial")
 	private final Map<Object, View> viewCreationCache =
 			new LinkedHashMap<Object, View>(DEFAULT_CACHE_LIMIT, 0.75f, true) {
+				/**
+				 * 移除过期的条目
+				 * @param eldest
+				 * @return
+				 */
 				@Override
 				protected boolean removeEldestEntry(Map.Entry<Object, View> eldest) {
+					//Map大小超过缓存上限时，移除老的条目
 					if (size() > getCacheLimit()) {
 						viewAccessCache.remove(eldest.getKey());
 						return true;
@@ -170,12 +176,16 @@ public abstract class AbstractCachingViewResolver extends WebApplicationObjectSu
 	@Override
 	@Nullable
 	public View resolveViewName(String viewName, Locale locale) throws Exception {
+		// 如果禁用缓存，则创建 viewName 对应的 View 对象
 		if (!isCache()) {
 			return createView(viewName, locale);
 		}
 		else {
+			// 获得缓存 KEY
 			Object cacheKey = getCacheKey(viewName, locale);
+			// 从 viewAccessCache 缓存中，获得 View 对象
 			View view = this.viewAccessCache.get(cacheKey);
+			// 如果获得不到缓存，则从 viewCreationCache 中，获得 View 对象
 			if (view == null) {
 				synchronized (this.viewCreationCache) {
 					view = this.viewCreationCache.get(cacheKey);
